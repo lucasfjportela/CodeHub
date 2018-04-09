@@ -23,9 +23,7 @@ func main() {
 	defer tcpConn.Close()
 
 	for {
-		fmt.Println("Rola antes")
 		tcpConn, _ := test.Accept()
-		fmt.Println("Rola depois")
 		go handleServerConnection(tcpConn)
 	}
 
