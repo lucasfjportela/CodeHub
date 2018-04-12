@@ -40,7 +40,7 @@ func main() {
 	//for {
 	c := make(chan string)
 	conn, _ := net.DialTCP("tcp", nil, tcpAddrDNS)
-	conn.Close()
+	defer conn.Close()
 
 	go handleClientDNSConnection(conn, c)
 	a := <-c

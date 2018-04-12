@@ -1,15 +1,16 @@
 package main
 
 import (
+	"codehub-sd/messageFormat"
 	"encoding/gob"
 	"fmt"
 	"net"
 )
 
 /*Func that execute the server operation*/
-func handleServerConnection(conn net.Conn) {
+func handleServerConnection(conn *net.TCPConn) {
 
-	var data map[string]string
+	/*var data map[string]string
 
 	decoder := gob.NewDecoder(conn)
 
@@ -19,6 +20,16 @@ func handleServerConnection(conn net.Conn) {
 	//datasize, _ := conn.Read(readed)
 	//data := readed[:datasize]
 	fmt.Println(data)
+	*/
+	msg := messageFormat.MessageFormat{}
+
+	decoder := gob.NewDecoder(conn)
+	decoder.Decode(&msg)
+
+	if msg.Origin == "DNS" {
+		fmt.Println("ROLA")
+	}
+
 }
 
 func main() {
@@ -32,7 +43,7 @@ func main() {
 
 	for {
 		fmt.Println("Listening...")
-		tcpConn, _ := listener.Accept()
+		tcpConn, _ := listener.AcceptTCP()
 		fmt.Println("Dále")
 		go handleServerConnection(tcpConn)
 	}
