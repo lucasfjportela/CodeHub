@@ -1,7 +1,7 @@
 package main
 
 import (
-	"codehub-sd/messageFormat"
+	"../codehub-sd/messageFormat"
 	"encoding/gob"
 	"fmt"
 	"net"
