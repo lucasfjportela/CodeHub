@@ -1,10 +1,11 @@
 package main
 
 import (
-	"../codehub-sd/messageFormat"
 	"encoding/gob"
 	"fmt"
 	"net"
+
+	"../codehub-sd/messageFormat"
 )
 
 /*Func that execute the server operation*/
@@ -26,8 +27,14 @@ func handleServerConnection(conn *net.TCPConn) {
 	decoder := gob.NewDecoder(conn)
 	decoder.Decode(&msg)
 
-	if msg.Origin == "DNS" {
-		fmt.Println("ROLA")
+	if msg.Origin == "Client" {
+		if msg.ReqType == "sto" {
+			fmt.Println("Aqui guarda o arquivo")
+		}
+
+		if msg.ReqType == "get" {
+			fmt.Println("Aqui dá o arquivo pra ele")
+		}
 	}
 
 }

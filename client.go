@@ -18,7 +18,7 @@ type Req struct {
 
 //type ListUsers [] messageFormat.MessageFormat
 
-func handleClientDNSConnection(conn *net.TCPConn, c chan string) {
+func handleClientDNSConnection(conn *net.TCPConn) string {
 
 	var dnsResponse string
 
@@ -29,7 +29,7 @@ func handleClientDNSConnection(conn *net.TCPConn, c chan string) {
 	//readed := make([]byte, 1024)
 	//datasize, _ := conn.Read(readed)
 	//data := readed[:datasize]
-	c <- dnsResponse
+	return dnsResponse
 }
 
 func handleClientAuthConnection(conn *net.TCPConn, msgUser messageFormat.MessageFormat) bool {
@@ -49,7 +49,13 @@ func handleClientAuthConnection(conn *net.TCPConn, msgUser messageFormat.Message
 	return authResponse
 }
 
-func handleClientServerConnection() {
+func handleClientServerConnection(conn *net.TCPConn, msgUser messageFormat.MessageFormat) {
+	defer conn.Close()
+
+	msg := msgUser
+
+	encoder := gob.NewEncoder(conn)
+	encoder.Encode(msg)
 
 }
 
@@ -59,11 +65,10 @@ func main() {
 	//pl := {"bean", "123"}.([]string)
 	tcpAddrAUTH, _ := net.ResolveTCPAddr("tcp", "localhost:1115")
 	tcpAddrDNS, _ := net.ResolveTCPAddr("tcp", "localhost:2223")
-	c := make(chan string)
 
 	conn, _ := net.DialTCP("tcp", nil, tcpAddrAUTH)
 
-	msgUser := messageFormat.MessageFormat{Origin: "CLIENT", ReqType: "auth", Payload: []string{"bean", "123"}}
+	msgUser := messageFormat.MessageFormat{Origin: "Client", ReqType: "auth", Payload: []string{"bean", "123"}}
 
 	ver := handleClientAuthConnection(conn, msgUser)
 
@@ -74,9 +79,14 @@ func main() {
 
 		conn2, _ := net.DialTCP("tcp", nil, tcpAddrDNS)
 
-		go handleClientDNSConnection(conn2, c)
-		serverAddr := <-c
+		serverAddr := handleClientDNSConnection(conn2)
+
 		fmt.Println(serverAddr)
+
+		tcpAddrServer, _ := net.ResolveTCPAddr("tcp", serverAddr)
+		conn, _ := net.DialTCP("tcp", nil, tcpAddrServer)
+		msgUser = messageFormat.MessageFormat{Origin: "Client", ReqType: "sto"}
+		handleClientServerConnection(conn, msgUser)
 	}
 
 	/*encoder := gob.NewEncoder(conn)
