@@ -1,30 +1,40 @@
 package main
 
 import (
-	"../codehub-sd/messageFormat"
 	"encoding/gob"
 	"fmt"
 	"net"
+
+	"../codehub-sd/messageFormat"
 )
 
+func handleClientAuthentication(conn *net.TCPConn) {
 
+	/*Test users*/
 
-func handleClientAuthentication(conn *net.TCPConn){
+	test := [][]string{{"Teteu", "123"}, {"bean", "123"}}
+
+	auth := false
+
 	mu := messageFormat.MessageFormat{}
-
 	decoder := gob.NewDecoder(conn)
 	decoder.Decode(&mu)
 
 	payload := mu.Payload.([]string)
 
-	fmt.Println( payload )
-	/*if  {
-		fmt.Println("AUTORIZADO	")
-	}*/
+	for _, i := range test {
+		if i[0] == payload[0] && i[1] == payload[1] {
+			auth = true
+			break
+		}
+	}
+
+	encoder := gob.NewEncoder(conn)
+	encoder.Encode(auth)
 
 }
 
-func main (){
+func main() {
 	fmt.Println("Starting AuthServer...")
 	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:1115")
 	listener, _ := net.ListenTCP("tcp", tcpAddr)
@@ -33,17 +43,13 @@ func main (){
 
 	defer tcpConn.Close()
 
-
-
 	for {
 		fmt.Println("Listening in AuthServer...")
 		tcpConn, _ := listener.AcceptTCP()
 		fmt.Println("Dále nessa autenticação")
 		go handleClientAuthentication(tcpConn)
 	}
-	
+
 	//m := messageFormat{ origin : "client", reqType : "auth", payload : {"Teteu", "123"}}
 
-
 }
-	
