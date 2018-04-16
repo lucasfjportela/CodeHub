@@ -1,10 +1,11 @@
 package main
 
 import (
-	"../codehub-sd/messageFormat"
 	"encoding/gob"
 	"fmt"
 	"net"
+
+	"../codehub-sd/messageFormat"
 )
 
 type dns struct {
@@ -14,25 +15,46 @@ type dns struct {
 
 func (d *dns) handleDNSConnection(conn *net.TCPConn) {
 
+	msg := &messageFormat.MessageFormat{}
+
+	decoder := gob.NewDecoder(conn)
+
+	decoder.Decode(msg)
+
 	encoder := gob.NewEncoder(conn)
 
-	for _, ipp := range d.table {
-		tcpAddrServer, _ := net.ResolveTCPAddr("tcp", ipp)
-		conn, err := net.DialTCP("tcp", nil, tcpAddrServer)
-		encoderServer := gob.NewEncoder(conn)
-
-		if err != nil {
-			continue
+	if msg.Origin == "Client" {
+		if msg.ReqType == "Auth" {
+			msgResponse := &messageFormat.MessageFormat{
+				Origin:  "DNS",
+				ReqType: "Response",
+				Payload: d.table[msg.ReqType],
+			}
+			encoder.Encode(msgResponse)
 		}
 
-		msg := messageFormat.MessageFormat{Origin: "DNS", ReqType: "ver"}
+		if msg.ReqType == "Server" {
 
-		encoderServer.Encode(msg)
-		fmt.Println("Client requests server address")
-		encoder.Encode(ipp)
+			for _, ipp := range d.table {
+				tcpAddrServer, _ := net.ResolveTCPAddr("tcp", ipp)
+				conn, err := net.DialTCP("tcp", nil, tcpAddrServer)
+				encoderServer := gob.NewEncoder(conn)
 
-		conn.Close()
-		return
+				if err != nil {
+					continue
+				}
+
+				msgServer := messageFormat.MessageFormat{Origin: "DNS", ReqType: "ver"}
+				response := messageFormat.MessageFormat{Origin: "DNS", ReqType: "Response", Payload: ipp}
+
+				encoderServer.Encode(msgServer)
+				fmt.Println("Client requests server address")
+				encoder.Encode(response)
+
+				conn.Close()
+				return
+			}
+		}
 	}
 
 }
@@ -44,6 +66,7 @@ func main() {
 	dnsTable.table["Server1"] = "localhost:1111"
 	dnsTable.table["Server2"] = "localhost:1112"
 	dnsTable.table["Server3"] = "localhost:1113"
+	dnsTable.table["Auth"] = "localhost:1515"
 
 	fmt.Println("Starting DNS Server...")
 	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:2223")

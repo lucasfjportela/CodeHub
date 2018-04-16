@@ -36,7 +36,7 @@ func handleClientAuthentication(conn *net.TCPConn) {
 
 func main() {
 	fmt.Println("Starting AuthServer...")
-	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:1115")
+	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:1515")
 	listener, _ := net.ListenTCP("tcp", tcpAddr)
 
 	var tcpConn net.TCPConn

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 
 	filedriver "github.com/goftp/file-driver"
@@ -51,8 +52,7 @@ func handleServerConnection(conn *net.TCPConn) {
 
 }
 
-func main() {
-	/*fmt.Println("Starting Server...")
+func HandleServerDNSConnection() {
 	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:1111")
 	listener, _ := net.ListenTCP("tcp", tcpAddr)
 
@@ -61,12 +61,16 @@ func main() {
 	defer tcpConn.Close()
 
 	for {
-		fmt.Println("Listening...")
-		tcpConn, _ := listener.AcceptTCP()
-		fmt.Println("Dále")
-		go handleServerConnection(tcpConn)
+		fmt.Println("Server listening dns on port 1111...")
+		listener.AcceptTCP()
+		fmt.Println("ROLA")
 	}
-	*/
+}
+
+func main() {
+	/*fmt.Println("Starting Server...")
+
+	 */
 	factory := &filedriver.FileDriverFactory{
 		RootPath: "C:/Users/Matheus/Desktop/ROLA",
 		Perm:     server.NewSimplePerm("root", "root"),
@@ -81,6 +85,8 @@ func main() {
 			Password: "admin",
 		},
 	}
+
+	go HandleServerDNSConnection()
 
 	serv := server.NewServer(opts)
 
