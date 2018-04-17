@@ -89,7 +89,7 @@ func main() {
 	ServerHello()
 
 	factory := &filedriver.FileDriverFactory{
-		RootPath: "C:/Users/Matheus/Desktop/Server",
+		RootPath: "C:/Users/Matheus/Desktop/ROLA",
 		Perm:     server.NewSimplePerm("root", "root"),
 	}
 
@@ -97,6 +97,7 @@ func main() {
 		Factory:  factory,
 		Port:     2121,
 		Hostname: "localhost",
+
 		Auth: &TestAuth{
 			Name:     "admin",
 			Password: "admin",
@@ -108,5 +109,4 @@ func main() {
 	serv := server.NewServer(opts)
 
 	serv.ListenAndServe()
-
 }

@@ -1,12 +1,17 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/gob"
 	"fmt"
 	"net"
 
-	"../codehub-sd/messageFormat"
+	"codehub-sd/messageFormat"
 )
+
+func base64Decode(src []byte) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(string(src))
+}
 
 func handleClientAuthentication(conn *net.TCPConn) {
 
@@ -22,8 +27,10 @@ func handleClientAuthentication(conn *net.TCPConn) {
 
 	payload := mu.Payload.([]string)
 
+	decryptPassword, _ := base64Decode([]byte(payload[1]))
+
 	for _, i := range test {
-		if i[0] == payload[0] && i[1] == payload[1] {
+		if i[0] == payload[0] && i[1] == string(decryptPassword) {
 			auth = true
 			break
 		}
