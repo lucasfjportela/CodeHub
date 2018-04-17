@@ -89,7 +89,7 @@ func main() {
 	ServerHello()
 
 	factory := &filedriver.FileDriverFactory{
-		RootPath: "C:/Users/Matheus/Desktop/ROLA",
+		RootPath: "//10.1.4.65/Users/Public/codehub",
 		Perm:     server.NewSimplePerm("root", "root"),
 	}
 
