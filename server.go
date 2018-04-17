@@ -1,6 +1,8 @@
 package main
 
 import (
+	"codehub-sd/messageFormat"
+	"encoding/gob"
 	"fmt"
 	"net"
 
@@ -56,23 +58,38 @@ func HandleServerDNSConnection() {
 	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:1111")
 	listener, _ := net.ListenTCP("tcp", tcpAddr)
 
-	var tcpConn net.TCPConn
-
-	defer tcpConn.Close()
-
 	for {
 		fmt.Println("Server listening dns on port 1111...")
 		listener.AcceptTCP()
-		fmt.Println("ROLA")
+		fmt.Println()
 	}
 }
 
-func main() {
-	/*fmt.Println("Starting Server...")
+func ServerHello() {
 
-	 */
+	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:2424")
+	tcpDNS, _ := net.ResolveTCPAddr("tcp", "localhost:2223")
+	conn, _ := net.DialTCP("tcp", tcpAddr, tcpDNS)
+
+	encoder := gob.NewEncoder(conn)
+	msg := &messageFormat.MessageFormat{
+		Origin:  "Server",
+		ReqType: "Hello",
+		Payload: []string{"Server1", "localhost:2121", "localhost:1111"},
+	}
+
+	encoder.Encode(msg)
+
+	fmt.Println("Sending hello to dns server \\o")
+
+}
+
+func main() {
+
+	ServerHello()
+
 	factory := &filedriver.FileDriverFactory{
-		RootPath: "C:/Users/Matheus/Desktop/ROLA",
+		RootPath: "C:/Users/Matheus/Desktop/Server",
 		Perm:     server.NewSimplePerm("root", "root"),
 	}
 
