@@ -12,7 +12,7 @@ func handleClientAuthentication(conn *net.TCPConn) {
 
 	/*Test users*/
 
-	test := [][]string{{"Teteu", "123"}, {"bean", "123"}}
+	test := [][]string{{"matheu", "123"}, {"bean", "456"}}
 
 	auth := false
 

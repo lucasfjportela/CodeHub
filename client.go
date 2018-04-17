@@ -5,6 +5,8 @@ import (
 	"encoding/gob"
 	"net"
 	"os"
+	"os/exec"
+	"fmt"
 
 	"github.com/jlaffaye/ftp"
 )
@@ -35,7 +37,7 @@ func handleClientDNSConnection(conn *net.TCPConn, msg messageFormat.MessageForma
 	decoder := gob.NewDecoder(conn)
 
 	decoder.Decode(dnsResponse)
-
+	
 	return dnsResponse.Payload.(string)
 }
 
@@ -82,7 +84,7 @@ func handleServerConnection(reqType string, serverAddr string) {
 		panic(err)
 	}
 
-	if reqType == "stor" {
+	if reqType == "str" {
 		file, err := os.Open("Wedson.txt")
 		if err != nil {
 			panic(err)
@@ -100,6 +102,24 @@ func handleServerConnection(reqType string, serverAddr string) {
 
 }
 func main() {
+	
+	// Console clear
+	cmd := exec.Command("cmd", "/c", "cls")
+    cmd.Stdout = os.Stdout
+	cmd.Run()
+	
+	fmt.Println("------------------ Codehub ------------------\n\n")
+	fmt.Println("")
+
+	var userAction, login, password, filename string
+
+	fmt.Scanln(&userAction, &login, &password)
+	//fmt.Println(userAction, login, password)
+	//fmt.Printf("%s", action)
+
+	if(userAction != "auth"){
+		panic("\nAuthentication is needed!\nTry:\n auth <login> <password>\n\n")
+	}
 
 	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:2223")
 	conn, _ := net.DialTCP("tcp", nil, tcpAddr)
@@ -110,9 +130,7 @@ func main() {
 	authAddr := handleClientDNSConnection(conn, msg)
 
 	msg = messageFormat.MessageFormat{
-		Origin:  "Client",
-		ReqType: "Auth",
-		Payload: []string{"Denini", "123"},
+		Payload: []string{login, password},
 	}
 
 	tcpAuth, _ := net.ResolveTCPAddr("tcp", authAddr)
@@ -121,16 +139,29 @@ func main() {
 	authResponse := handleClientAuthConnection(connAuth, msg)
 
 	if !authResponse {
-		panic("You can't auth")
+		panic("Unauthorized")
 	}
 
 	msg = messageFormat.MessageFormat{
 		Origin:  "Client",
 		ReqType: "Server",
 	}
+	fmt.Println("oiau")
+	serverAddr := handleClientDNSConnection(connAuth, msg)
+	fmt.Println("oi")
 
-	serverAddr := handleClientDNSConnection(conn, msg)
+	// Client get/str files
+	fmt.Println("\nuse get name-of-file.txt to get a code from server\n")
+	fmt.Println("\nuse str name-of-file.txt to upload a code to server\n")
+	fmt.Scanln(&userAction, &filename)
 
-	handleServerConnection("get", serverAddr)
+	if(userAction != "get" || userAction != "str"){
+		panic("\nWrong command, try again.\n\n")
+	}
 
+	if(userAction == "get"){
+		handleServerConnection("get", serverAddr)
+	} else {
+		handleServerConnection("str", serverAddr)
+	}
 }

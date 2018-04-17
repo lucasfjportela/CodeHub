@@ -41,7 +41,7 @@ func handleServerConnection(conn *net.TCPConn) {
 		decoder.Decode(&msg)
 
 		if msg.Origin == "Client" {
-			if msg.ReqType == "sto" {
+			if msg.ReqType == "str" {
 				fmt.Println("Aqui guarda o arquivo")
 			}
 
