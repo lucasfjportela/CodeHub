@@ -57,11 +57,7 @@ func main() {
 	ServerHello()
 
 	factory := &filedriver.FileDriverFactory{
-<<<<<<< HEAD:server1.go
 		RootPath: "//192.168.0.100/C:/Users/Public/Codehub",
-=======
-		RootPath: "//10.1.4.65/Users/Public/codehub",
->>>>>>> 9dc77a21bc27db08fa9dd8781df262f11f826552:server.go
 		Perm:     server.NewSimplePerm("root", "root"),
 	}
 
