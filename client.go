@@ -8,20 +8,10 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"log"
 
 	"github.com/jlaffaye/ftp"
 )
-
-/*
-type Req struct {
-	Login      string
-	Password   string
-	Authorized bool
-}
-
-*/
-
-//type ListUsers [] messageFormat.MessageFormat
 
 func base64Encode(src []byte) []byte {
 	return []byte(base64.StdEncoding.EncodeToString(src))
@@ -34,10 +24,6 @@ func handleClientDNSConnection(conn *net.TCPConn, msg messageFormat.MessageForma
 	encoder := gob.NewEncoder(conn)
 
 	encoder.Encode(msg)
-
-	//readed := make([]byte, 1024)
-	//datasize, _ := conn.Read(readed)
-	//data := readed[:datasize]
 
 	decoder := gob.NewDecoder(conn)
 
@@ -57,23 +43,8 @@ func handleClientAuthConnection(conn *net.TCPConn, msgUser messageFormat.Message
 
 	decoder.Decode(&authResponse)
 
-	//readed := make([]byte, 1024)
-	//datasize, _ := conn.Read(readed)
-	//data := readed[:datasize]
 	return authResponse
 }
-
-/*
-func handleClientServerConnection(conn *net.TCPConn, msgUser messageFormat.MessageFormat) {
-	defer conn.Close()
-
-	msg := msgUser
-
-	encoder := gob.NewEncoder(conn)
-	encoder.Encode(msg)
-
-}
-*/
 
 func handleServerConnection(reqType string, serverAddr string, fileName string, userName string) {
 
@@ -111,27 +82,25 @@ func handleServerConnection(reqType string, serverAddr string, fileName string, 
 }
 func main() {
 
-	// Console clear
+	// Terminal clear
 	cmd := exec.Command("cmd", "/c", "cls")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 
-	fmt.Println("------------------ Codehub ------------------\n\n")
-	fmt.Println("")
+	fmt.Println("-------------------------- Codehub --------------------------\n")
 
 	var userAction, login, password, filename string
 
 	fmt.Scanln(&userAction, &login, &password)
-	//fmt.Println(userAction, login, password)
-	//fmt.Printf("%s", action)
 
 	cryptPass := base64Encode([]byte(password))
 
 	if userAction != "auth" {
-		panic("\nAuthentication is needed!\nTry:\n auth <login> <password>\n\n")
+		fmt.Println("\n")
+		log.Fatal("\nAuthentication is needed!\nTry: auth <login> <password>\n")
 	}
 
-	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:2223")
+	tcpAddr, _ := net.ResolveTCPAddr("tcp", "192.168.0.103:2223")
 	conn, _ := net.DialTCP("tcp", nil, tcpAddr)
 	msg := messageFormat.MessageFormat{
 		Origin:  "Client",
@@ -139,7 +108,6 @@ func main() {
 	}
 	authAddr := handleClientDNSConnection(conn, msg)[0]
 
-	fmt.Println("HAHAH: " + string(cryptPass))
 	msg = messageFormat.MessageFormat{
 		Payload: []string{login, string(cryptPass)},
 	}
@@ -150,7 +118,7 @@ func main() {
 	authResponse := handleClientAuthConnection(connAuth, msg)
 
 	if !authResponse {
-		panic("Unauthorized")
+		log.Fatalln("Unauthorized\n")
 	}
 
 	msg = messageFormat.MessageFormat{
@@ -158,18 +126,18 @@ func main() {
 		ReqType: "Server",
 	}
 
-	conn, _ = net.DialTCP("tcp", nil, tcpAddr)
-	fmt.Println("oiau")
+	co
+	nn, _ = net.DialTCP("tcp", nil, tcpAddr)
 	serverAddr := handleClientDNSConnection(conn, msg)
-	fmt.Println("oi")
-
+	
 	// Client get/str files
-	fmt.Println("\nuse get name-of-file.txt to get a code from server\n")
-	fmt.Println("\nuse str name-of-file.txt to upload a code to server\n")
-	fmt.Scanln(&userAction, &filename)
+	fmt.Println("\nuse get name-of-file.txt to get a code from server")
+	fmt.Println("use str name-of-file.txt to upload a code to server\n")
+	fmt.Scanln(&userAction/*, &filename*/)
 
 	if userAction != "get" && userAction != "str" {
-		panic("\nWrong command, try again.\n\n")
+		fmt.Println("\n")
+		log.Fatal("\nWrong command, try again.\n")
 	}
 
 	if userAction == "get" {

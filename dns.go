@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"net"
 
-	"../codehub-sd/messageFormat"
+	"codehub-sd/messageFormat"
 )
 
 type dns struct {
-	/*map["Serverx : "1994864:1554""]*/
 	tableServer map[string][]string
 	tableAuth   map[string][]string
 }
@@ -52,7 +51,6 @@ func (d *dns) handleDNSConnection(conn *net.TCPConn) {
 
 				encoderServer.Encode(msgServer)
 				fmt.Println("Client requests server address")
-				fmt.Println(response)
 				encoder.Encode(response)
 
 				return
@@ -63,7 +61,7 @@ func (d *dns) handleDNSConnection(conn *net.TCPConn) {
 	if msg.Origin == "Server" {
 		if msg.ReqType == "Hello" {
 			d.tableServer[msg.Payload.([]string)[0]] = []string{msg.Payload.([]string)[1], msg.Payload.([]string)[2]}
-			fmt.Print("Dns table is: ")
+			fmt.Print("DNS table is: ")
 			fmt.Println(d.tableServer)
 		}
 	}
@@ -71,14 +69,14 @@ func (d *dns) handleDNSConnection(conn *net.TCPConn) {
 }
 
 func main() {
-	//var dnsTable dns
+	
 	dnsTable := &dns{}
 	dnsTable.tableServer = make(map[string][]string)
 	dnsTable.tableAuth = make(map[string][]string)
-	dnsTable.tableAuth["Auth"] = []string{"localhost:1515"}
+	dnsTable.tableAuth["Auth"] = []string{"192.168.0.105:1515"}
 
 	fmt.Println("Starting DNS Server...")
-	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:2223")
+	tcpAddr, _ := net.ResolveTCPAddr("tcp", "192.168.0.103:2223")
 	listener, _ := net.ListenTCP("tcp", tcpAddr)
 
 	for {

@@ -22,44 +22,12 @@ func (a *TestAuth) CheckPasswd(name, pass string) (bool, error) {
 	return true, nil
 }
 
-/*Func that execute the server operation*/
-func handleServerConnection(conn *net.TCPConn) {
-
-	/*var data map[string]string
-
-	decoder := gob.NewDecoder(conn)
-
-	decoder.Decode(&data)
-
-	//readed := make([]byte, 1024)
-	//datasize, _ := conn.Read(readed)
-	//data := readed[:datasize]
-	fmt.Println(data)
-	*/
-	/*
-		msg := messageFormat.MessageFormat{}
-
-		decoder := gob.NewDecoder(conn)
-		decoder.Decode(&msg)
-
-		if msg.Origin == "Client" {
-			if msg.ReqType == "str" {
-				fmt.Println("Aqui guarda o arquivo")
-			}
-
-			if msg.ReqType == "get" {
-				fmt.Println("Aqui dá o arquivo pra ele")
-			}
-		}*/
-
-}
-
 func HandleServerDNSConnection() {
-	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:1111")
+	tcpAddr, _ := net.ResolveTCPAddr("tcp", "192.168.0.111:1111")
 	listener, _ := net.ListenTCP("tcp", tcpAddr)
 
 	for {
-		fmt.Println("Server listening dns on port 1111...")
+		fmt.Println("Server 2 listening dns on port 1111...")
 		listener.AcceptTCP()
 		fmt.Println()
 	}
@@ -67,15 +35,15 @@ func HandleServerDNSConnection() {
 
 func ServerHello() {
 
-	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:2424")
-	tcpDNS, _ := net.ResolveTCPAddr("tcp", "localhost:2223")
+	tcpAddr, _ := net.ResolveTCPAddr("tcp", "192.168.0.111:2424")
+	tcpDNS, _ := net.ResolveTCPAddr("tcp", "192.168.0.103:2223")
 	conn, _ := net.DialTCP("tcp", tcpAddr, tcpDNS)
 
 	encoder := gob.NewEncoder(conn)
 	msg := &messageFormat.MessageFormat{
 		Origin:  "Server",
 		ReqType: "Hello",
-		Payload: []string{"Server1", "localhost:2121", "localhost:1111"},
+		Payload: []string{"Server2", "192.168.0.111:2121", "192.168.0.111:1111"},
 	}
 
 	encoder.Encode(msg)
@@ -89,14 +57,14 @@ func main() {
 	ServerHello()
 
 	factory := &filedriver.FileDriverFactory{
-		RootPath: "C:/Users/Matheus/Desktop/ROLA",
+		RootPath: "//192.168.0.100/C:/Users/Public/Codehub",
 		Perm:     server.NewSimplePerm("root", "root"),
 	}
 
 	opts := &server.ServerOpts{
 		Factory:  factory,
 		Port:     2121,
-		Hostname: "localhost",
+		Hostname: "192.168.0.111",
 
 		Auth: &TestAuth{
 			Name:     "admin",

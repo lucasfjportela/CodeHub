@@ -43,7 +43,7 @@ func handleClientAuthentication(conn *net.TCPConn) {
 
 func main() {
 	fmt.Println("Starting AuthServer...")
-	tcpAddr, _ := net.ResolveTCPAddr("tcp", "localhost:1515")
+	tcpAddr, _ := net.ResolveTCPAddr("tcp", "192.168.0.105:1515")
 	listener, _ := net.ListenTCP("tcp", tcpAddr)
 
 	var tcpConn net.TCPConn
@@ -53,10 +53,6 @@ func main() {
 	for {
 		fmt.Println("Listening in AuthServer...")
 		tcpConn, _ := listener.AcceptTCP()
-		fmt.Println("Dále nessa autenticação")
 		go handleClientAuthentication(tcpConn)
 	}
-
-	//m := messageFormat{ origin : "client", reqType : "auth", payload : {"Teteu", "123"}}
-
 }
