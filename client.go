@@ -5,12 +5,14 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
+	"bufio"
+	"syscall"
 	"net"
 	"os"
 	"os/exec"
 	"log"
-
 	"github.com/jlaffaye/ftp"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func base64Encode(src []byte) []byte {
@@ -87,17 +89,24 @@ func main() {
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 
-	fmt.Println("-------------------------- Codehub --------------------------\n")
-
+	fmt.Println("-------------------------- Codehub --------------------------")
+	
 	var userAction, login, password, filename string
+	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Scanln(&userAction, &login, &password)
+	fmt.Scanln(&userAction)
 
+	fmt.Print("Enter username: ")
+	login, _ = reader.ReadString('\n')
+	
+	fmt.Print("Enter password: ")
+	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+	password = string(bytePassword)
 	cryptPass := base64Encode([]byte(password))
 
 	if userAction != "auth" {
 		fmt.Println("\n")
-		log.Fatal("\nAuthentication is needed!\nTry: auth <login> <password>\n")
+		log.Fatal("\nAuthentication is needed!\nTry: auth\n")
 	}
 
 	tcpAddr, _ := net.ResolveTCPAddr("tcp", "192.168.0.103:2223")
@@ -144,5 +153,5 @@ func main() {
 		handleServerConnection("get", serverAddr[0], filename, login)
 	} else {
 		handleServerConnection("str", serverAddr[0], filename, login)
-	}
+	}	
 }
