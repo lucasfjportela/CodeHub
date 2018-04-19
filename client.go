@@ -5,12 +5,12 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
-	"bufio"
-	"syscall"
+	"log"
 	"net"
 	"os"
 	"os/exec"
-	"log"
+	"syscall"
+
 	"github.com/jlaffaye/ftp"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -84,21 +84,20 @@ func handleServerConnection(reqType string, serverAddr string, fileName string, 
 }
 func main() {
 
-	// Terminal clear
+	// CMD clear
 	cmd := exec.Command("cmd", "/c", "cls")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 
 	fmt.Println("-------------------------- Codehub --------------------------")
-	
+
 	var userAction, login, password, filename string
-	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Scanln(&userAction)
 
 	fmt.Print("Enter username: ")
-	login, _ = reader.ReadString('\n')
-	
+	fmt.Scanln(&login)
+
 	fmt.Print("Enter password: ")
 	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
 	password = string(bytePassword)
@@ -118,7 +117,7 @@ func main() {
 	authAddr := handleClientDNSConnection(conn, msg)[0]
 
 	msg = messageFormat.MessageFormat{
-		Payload: []string{login, string(cryptPass)},
+		Payload: []string{string(login), string(cryptPass)},
 	}
 
 	tcpAuth, _ := net.ResolveTCPAddr("tcp", authAddr)
@@ -135,14 +134,13 @@ func main() {
 		ReqType: "Server",
 	}
 
-	co
-	nn, _ = net.DialTCP("tcp", nil, tcpAddr)
+	conn, _ = net.DialTCP("tcp", nil, tcpAddr)
 	serverAddr := handleClientDNSConnection(conn, msg)
-	
+
 	// Client get/str files
 	fmt.Println("\nuse get name-of-file.txt to get a code from server")
 	fmt.Println("use str name-of-file.txt to upload a code to server\n")
-	fmt.Scanln(&userAction/*, &filename*/)
+	fmt.Scanln(&userAction, &filename)
 
 	if userAction != "get" && userAction != "str" {
 		fmt.Println("\n")
@@ -153,5 +151,5 @@ func main() {
 		handleServerConnection("get", serverAddr[0], filename, login)
 	} else {
 		handleServerConnection("str", serverAddr[0], filename, login)
-	}	
+	}
 }
